@@ -1,8 +1,11 @@
 <template>
-  <div class="experience" @click="beginExperience">
+  <div class="experience">
     <!-- INTRO SCREEN -->
     <div v-if="!started" class="intro">
-      <h1 class="intro-line">{{ displayedText }}</h1>
+      <h1 class="intro-line magnet-target">{{ displayedText }}</h1>
+      <p class="tap" @click="beginExperience" v-if="showTapButton">
+        Tap to begin
+      </p>
     </div>
 
     <!-- STORY -->
@@ -27,11 +30,13 @@
 
 <script>
 import gsap from "gsap";
+
 export default {
   data() {
     return {
       name: "",
       started: false,
+      showTapButton: false,
       displayedText: "",
       introLines: [],
       lines: [
@@ -63,7 +68,7 @@ export default {
     this.introLines = [
       `Hi ${this.name}...`,
       "You know… background music makes everything perfect.",
-      "So tap anywhere… let the story begin!!",
+      "So with music! let the story begin!!",
     ];
 
     this.typeIntro(0);
@@ -71,7 +76,25 @@ export default {
 
   methods: {
     typeIntro(index) {
-      if (index >= this.introLines.length) return;
+      if (index >= this.introLines.length) {
+        this.showTapButton = true;
+        this.$nextTick(() => {
+          window.Shery.makeMagnet(".tap", {
+            ease: "cubic-bezier(0.23, 1, 0.320, 1)",
+            duration: 1,
+          });
+
+          gsap.from(".tap", {
+            opacity: 0,
+            y: 40,
+            scale: 0.8,
+            duration: 1.2,
+            ease: "power3.out",
+          });
+        });
+
+        return;
+      }
 
       const text = this.introLines[index];
       this.displayedText = "";
@@ -156,7 +179,17 @@ export default {
         opacity: 1,
         duration: 2,
         delay: 0.5,
-        onComplete: this.fadeOutMusic,
+        onComplete: () => {
+          this.fadeOutMusic();
+          this.$nextTick(() => {
+            window.Shery.mouseFollower();
+             window.Shery.makeMagnet(".final", {
+            ease: "cubic-bezier(0.23, 1, 0.320, 1)",
+            duration: 1,
+          });
+          });
+              
+        },
       });
     },
 
@@ -192,169 +225,17 @@ export default {
 </script>
 
 <style>
-@font-face {
-  font-family: "D";
-  src: url("/DancingScript-VariableFont_wght.ttf");
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html,
-body {
-  width: 100%;
-  height: 100%;
-}
-
-.experience {
-  height: 100vh;
-  width: 100%;
-  background: radial-gradient(circle at center, #2d004d, #000);
-  color: white;
-  font-family: "D", cursive;
-
-  text-align: center;
-  overflow: hidden;
+.tap {
+  position: absolute;
+  top: 60%;
+  padding: 14px 36px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
   cursor: pointer;
-  position: relative;
-  padding: 2rem;
-}
-.intro {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-/* ================= INTRO ================= */
-
-.intro-line {
-  font-size: 2rem;
-}
-
-/* ================= STORY ================= */
-
-.story {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
-}
-
-/* TYPEWRITER TEXT CENTERED */
-.line {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 2rem;
-}
-
-/* ================= PHOTO + FINAL ================= */
-
-.story_part {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 3rem;
-  width: 100%;
-  height: 100%;
-}
-
-.photo {
-  opacity: 0;
-  width: 260px;
-  border-radius: 8px;
-  /* transform: scale(0.8); */
-  transition: all 0.3s ease;
-}
-
-.final {
-  opacity: 0;
-  font-size: 2.8rem;
-  text-shadow: 0 0 20px #ff69b4;
-  line-height: 1.3;
-}
-
-
-
-.ballons {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.ballon {
-  position: absolute;
-  width: 20px;
-  top: -50px;
-  animation: fall linear infinite;
-}
-
-@keyframes fall {
-  to {
-    transform: translateY(110vh) rotate(360deg);
-  }
-}
-
-/* ================= RESPONSIVE ================= */
-
-/* Tablets */
-@media (max-width: 1024px) {
-  .line {
-    font-size: 2.5rem;
-    /* top: 30%; */
-  }
-
-  .final {
-    font-size: 2.2rem;
-  }
-
-  .photo {
-    width: 220px;
-  }
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  .line {
-    font-size: 2rem;
-   
-  }
-
-  .story_part {
-    flex-direction: column;
-    gap: 1.5rem;
-    bottom: 8%;
-  }
-
-  .photo {
-    width: 180px;
-  }
-
-  .final {
-    font-size: 1.8rem;
-  }
-}
-
-/* Small Mobile */
-@media (max-width: 480px) {
-  .line {
-    font-size: 1.6rem;
-  }
-
-  .final {
-    font-size: 1.5rem;
-  }
-
-  .photo {
-    width: 150px;
-  }
+  border-radius: 40px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 </style>
