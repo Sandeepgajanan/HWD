@@ -15,7 +15,9 @@
       <p class="line">{{ displayedText }}</p>
 
       <div class="story_part">
-        <img :src="photoSrc" ref="photo" class="photo" />
+      
+          <img :src="photoSrc" ref="photo" class="photo"/>
+        
 
         <h2 ref="final" class="final">
           Happy Women’s Day, {{ name }} <br />
@@ -59,7 +61,7 @@ export default {
       this.name = lowerKey.charAt(0).toUpperCase() + lowerKey.slice(1);
 
       // since images are in public folder
-      this.photoSrc = `/${lowerKey}.png`;
+      this.photoSrc = `/ai/${lowerKey}.png`;
     } else {
       this.name = "Team Member";
       this.photoSrc = "/default.png";
