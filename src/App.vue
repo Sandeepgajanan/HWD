@@ -1,23 +1,24 @@
 <template>
   <div class="experience">
+    <Loader v-if="showLoader" @start="startIntro" />
+
     <!-- INTRO SCREEN -->
-    <div v-if="!started" class="intro">
+    <div v-if="!started && !showLoader" class="intro">
       <h1 class="intro-line magnet-target">{{ displayedText }}</h1>
+
       <p class="tap" @click="beginExperience" v-if="showTapButton">
-        Tap to begin
+        Let's add some music
       </p>
     </div>
 
     <!-- STORY -->
-    <div v-else class="story">
+    <div v-else-if="started" class="story">
       <div class="ballons"></div>
 
       <p class="line">{{ displayedText }}</p>
 
       <div class="story_part">
-      
-          <img :src="photoSrc" ref="photo" class="photo"/>
-        
+        <img :src="photoSrc" ref="photo" class="photo" />
 
         <h2 ref="final" class="final">
           Happy Women’s Day, {{ name }} <br />
@@ -27,15 +28,19 @@
     </div>
 
     <audio ref="bgMusic" src="/womensday.mp3"></audio>
+    <audio ref="typeSound" src="/typewriter.mp3" preload="auto"></audio>
   </div>
 </template>
-
 <script>
 import gsap from "gsap";
-
+import Loader from "./Loader.vue";
 export default {
+  components: {
+    Loader,
+  },
   data() {
     return {
+      showLoader: true,
       name: "",
       started: false,
       showTapButton: false,
@@ -69,14 +74,27 @@ export default {
     // Intro lines dynamic
     this.introLines = [
       `Hi ${this.name}...`,
-      "You know… background music makes everything perfect.",
-      "So with music! let the story begin!!",
+      "You know something?",
+      "Music makes every moment magical.",
+      "So before the story begins...",
     ];
 
-    this.typeIntro(0);
+    // this.typeIntro(0);
   },
 
   methods: {
+    playType() {
+      const base = this.$refs.typeSound;
+      if (!base) return;
+
+      const sound = base.cloneNode(); // create a fresh audio instance
+      sound.volume = 0.4;
+      sound.play().catch(() => {});
+    },
+    startIntro() {
+      this.showLoader = false;
+      this.typeIntro(0);
+    },
     typeIntro(index) {
       if (index >= this.introLines.length) {
         this.showTapButton = true;
@@ -104,6 +122,7 @@ export default {
 
       const typing = setInterval(() => {
         this.displayedText += text.charAt(i);
+        this.playType();
         i++;
 
         if (i >= text.length) {
@@ -185,12 +204,11 @@ export default {
           this.fadeOutMusic();
           this.$nextTick(() => {
             window.Shery.mouseFollower();
-             window.Shery.makeMagnet(".final", {
-            ease: "cubic-bezier(0.23, 1, 0.320, 1)",
-            duration: 1,
+            window.Shery.makeMagnet(".final", {
+              ease: "cubic-bezier(0.23, 1, 0.320, 1)",
+              duration: 1,
+            });
           });
-          });
-              
         },
       });
     },
